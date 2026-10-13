@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* Custom Print styles for clean PDF export */
+@media print {
+  /* Hide navigation, form, buttons, progress bar when printing/saving to PDF */
+  header,
+  form,
+  .no-print,
+  button,
+  .activity-log {
+    display: none !important;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  .brochure-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Ensure page breaks don't split headings */
+  h1, h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  pre, blockquote {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

@@ -1,0 +1,25 @@
+# Environments
+.env
+*.env
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.log
+
+# OS & Editor
+.DS_Store
+.idea/
+.vscode/
