@@ -48,14 +48,24 @@ flowchart TD
 
 ---
 
-## 🚀 Quickstart Guide
+## 🐳 Production Deployment with Docker Compose & NGINX
 
-### 1. Prerequisites
-- Python 3.10+
-- Node.js 18+ and npm
-- A Google Gemini API key ([Google AI Studio](https://aistudio.google.com/))
+The project includes production-grade container orchestration powered by Docker, Docker Compose, and a dedicated NGINX reverse proxy gateway.
 
-### 2. Configure Environment
+### Architecture Overview
+
+```mermaid
+flowchart LR
+    Client([Browser / Client]) -- HTTP :80 / HTTPS :443 --> Nginx[NGINX Reverse Proxy\n(Rate Limit, Security Headers, Unbuffered SSE)]
+    subgraph Isolated Docker Network [brochure-network]
+        Nginx -- / --> Frontend[Frontend React SPA\n(Nginx Unprivileged :8080)]
+        Nginx -- /api/ --> Backend[FastAPI Backend\n(Python 3.12 Slim :8000)]
+    end
+    Backend -- Crawl Subpages --> Web[Target Website]
+    Backend -- AI Generation --> Gemini[Google Gemini API]
+```
+
+### 1. Configure Environment
 Copy `.env.example` to `.env` and insert your Gemini API key:
 ```bash
 cp .env.example .env
@@ -63,9 +73,83 @@ cp .env.example .env
 Edit `.env`:
 ```env
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-3.5-flash-lite
+HTTP_PORT=80
+HTTPS_PORT=443
 ```
 
-### 3. Backend Setup
+### 2. Start Services
+Build and start all services in detached mode:
+```bash
+docker compose up -d --build
+```
+
+Access the application:
+- **Web Interface**: `http://localhost/` (or port configured in `HTTP_PORT`)
+- **API Health**: `http://localhost/api/health`
+- **Interactive Swagger Docs**: `http://localhost/docs`
+
+### 3. Service Management Commands
+```bash
+# View service statuses & health
+docker compose ps
+
+# View live container logs
+docker compose logs -f
+
+# Gracefully stop the application
+docker compose down
+```
+
+---
+
+## 🔒 Security Best Practices Implemented
+
+1. **Defense-in-Depth Network Isolation**:
+   - Only the NGINX reverse proxy binds to host ports (`80` and `443`).
+   - The FastAPI backend and React frontend are quarantined inside an isolated bridge network (`brochure-network`) with no direct public host exposure.
+
+2. **Least Privilege & Non-Root Execution**:
+   - **Backend**: Runs as unprivileged system user `appuser` (UID 1001, GID 1001).
+   - **Frontend & Proxy**: Run on `nginxinc/nginx-unprivileged:alpine` as non-root user `nginx` (UID 101) binding to unprivileged ports (`8080` / `8443`).
+   - All containers have `no-new-privileges:true` and `cap_drop: [ALL]` enabled.
+
+3. **Exchange Security & Hardened HTTP Headers**:
+   - `X-Frame-Options: DENY` (Clickjacking mitigation)
+   - `X-Content-Type-Options: nosniff` (MIME-sniffing prevention)
+   - `X-XSS-Protection: 1; mode=block`
+   - `Referrer-Policy: strict-origin-when-cross-origin`
+   - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+   - `Content-Security-Policy`: Strictly scoped for React, fonts, and SSE connections.
+   - `server_tokens off;` and `proxy_hide_header X-Powered-By`: Prevents version fingerprinting and information disclosure.
+
+4. **Abuse & DoS Mitigation**:
+   - `limit_req_zone`: Enforces rate limiting on `/api/*` (10 req/s with burst of 20, returning HTTP 429).
+   - `limit_conn_zone`: Restricts concurrent connections per IP.
+   - HTTP method whitelisting: Restricts non-standard methods (returns HTTP 405).
+   - Payload limit: `client_max_body_size 10M;` to prevent memory exhaustion attacks.
+
+5. **Server-Sent Events (SSE) Optimization**:
+   - `/api/generate/stream` is configured with `proxy_buffering off;`, `proxy_cache off;`, and 300s timeouts so tokens stream in real time without lag.
+
+6. **Environment Variable & Secrets Security**:
+   - Confidential keys (`GEMINI_API_KEY`) are passed strictly via system environment / `.env`.
+   - `.env` and certificate files are blocked via `.gitignore` and `.dockerignore`.
+   - No secrets are ever baked into Docker image layers or build cache.
+
+7. **SSL/TLS Readiness**:
+   - Certificate templates provided in `nginx/conf.d/default.conf` and `nginx/certs/README.md` with TLSv1.2/1.3 and modern cipher suites.
+
+---
+
+## 💻 Local Development (Without Docker)
+
+### 1. Prerequisites
+- Python 3.10+
+- Node.js 18+ and npm
+- A Google Gemini API key ([Google AI Studio](https://aistudio.google.com/))
+
+### 2. Backend Setup
 ```bash
 # Create and activate virtual environment
 python3 -m venv .venv
@@ -79,7 +163,7 @@ uvicorn backend.main:app --reload --port 8000
 ```
 Backend API will be accessible at `http://localhost:8000` with interactive Swagger docs at `http://localhost:8000/docs`.
 
-### 4. Frontend Setup
+### 3. Frontend Setup
 ```bash
 cd frontend
 npm install

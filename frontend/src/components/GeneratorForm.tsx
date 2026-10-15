@@ -20,7 +20,7 @@ interface GeneratorFormProps {
 
 const EXAMPLE_URLS = [
   { label: 'Hugging Face', url: 'https://huggingface.co' },
-  { label: 'Edward Donner', url: 'https://edwarddonner.com' },
+  { label: 'YPF', url: 'https://ypf.com' },
   { label: 'Supabase', url: 'https://supabase.com' },
 ];
 

@@ -1,0 +1,139 @@
+# ==============================================================================
+# Docker Compose Orchestration for AI Company Brochure Generator
+# Production-ready, least-privilege, network-isolated multi-container setup
+# ==============================================================================
+
+name: brochure-generator
+
+services:
+  # ----------------------------------------------------------------------------
+  # Backend API Service (FastAPI + Uvicorn + Gemini AI)
+  # Internal network only: never exposed directly to the public internet
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: brochure-generator-backend:latest
+    container_name: brochure-backend
+    restart: unless-stopped
+    expose:
+      - "8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      - HOST=0.0.0.0
+      - PORT=8000
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: '1.5'
+          memory: 1024M
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - brochure-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # Frontend Web Service (React + Vite + Tailwind CSS)
+  # Served via unprivileged Nginx (UID 101); internal network only
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: brochure-generator-frontend:latest
+    container_name: brochure-frontend
+    restart: unless-stopped
+    expose:
+      - "8080"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    networks:
+      - brochure-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ----------------------------------------------------------------------------
+  # Reverse Proxy & Security Gateway (NGINX Unprivileged)
+  # The ONLY public-facing service. Handles rate-limiting, SSL, and security headers.
+  # ----------------------------------------------------------------------------
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: brochure-generator-proxy:latest
+    container_name: brochure-proxy
+    restart: unless-stopped
+    ports:
+      # Map host HTTP port (default: 80) to unprivileged Nginx port (8080)
+      - "${HTTP_PORT:-80}:8080"
+      # Map host HTTPS port (default: 443) to unprivileged Nginx port (8443)
+      - "${HTTPS_PORT:-443}:8443"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+    networks:
+      - brochure-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+# ------------------------------------------------------------------------------
+# Isolated Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  brochure-network:
+    name: brochure-network
+    driver: bridge

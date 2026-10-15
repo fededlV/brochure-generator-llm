@@ -23,3 +23,11 @@ frontend/.vite/
 .DS_Store
 .idea/
 .vscode/
+
+# Docker & SSL Certificates
+docker-compose.override.yml
+nginx/certs/*.crt
+nginx/certs/*.key
+nginx/certs/*.pem
+!nginx/certs/README.md
+!nginx/certs/.gitkeep

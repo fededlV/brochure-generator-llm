@@ -158,7 +158,7 @@ class AIEngine:
             else:
                 response_stream = stream_or_coro
 
-            async for chunk in response_stream:
+            async for chunk in response_stream: # type: ignore
                 if chunk.text:
                     yield chunk.text
         except Exception as exc:
