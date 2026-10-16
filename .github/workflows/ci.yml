@@ -93,11 +93,20 @@ jobs:
       - name: Validate Docker Compose configuration
         run: docker compose config
 
-      - name: Build all Docker images
+      - name: Build and launch Docker Compose stack
         env:
-          GEMINI_API_KEY: "dummy_key_for_build"
-        run: docker compose build
-
-      - name: Verify NGINX reverse proxy configuration syntax
+          GEMINI_API_KEY: "AIzaSyDummyTestKeyForCIPipeline123456"
+          HTTP_PORT: 80
         run: |
-          docker run --rm brochure-generator-proxy:latest nginx -t
+          docker compose up -d --build
+          sleep 12
+          docker compose ps
+
+      - name: Verify NGINX reverse proxy & backend connectivity
+        run: |
+          curl -f http://localhost/healthz
+          curl -f http://localhost/api/health
+
+      - name: Teardown Docker Compose stack
+        if: always()
+        run: docker compose down
