@@ -1,8 +1,29 @@
 # AI Company Brochure Generator 🚀
 
-An intelligent web-research and marketing brochure generator powered by Google Gemini. This application transforms any company website into polished marketing collateral tailored for prospects, investors, or talent recruiters.
+[![CI Pipeline](https://github.com/fededlV/brochure-generator-llm/actions/workflows/ci.yml/badge.svg)](https://github.com/fededlV/brochure-generator-llm/actions/workflows/ci.yml)
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?logo=typescript&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
+![NGINX](https://img.shields.io/badge/NGINX-Reverse_Proxy-009639?logo=nginx&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google_Gemini-2.5_%2F_3.5-4285F4?logo=google&logoColor=white)
 
-Built following the **Spec-Driven Development (SDD)** framework, evolving from a single Jupyter notebook into an asynchronous, fullstack application with real-time streaming.
+An intelligent, production-ready marketing brochure generator powered by Google Gemini. This application autonomously crawls target company websites, filters high-signal pages with AI reasoning, synthesizes brand context, and streams custom marketing brochures tailored for prospects, investors, or talent recruiters.
+
+Built following the **Spec-Driven Development (SDD)** framework, evolving from a single Jupyter prototype into a fully containerized, secure, asynchronous fullstack application.
+
+---
+
+## ✨ Key Features
+
+- ⚡ **Real-Time Token Streaming**: Server-Sent Events (SSE) pipeline with unbuffered proxying for instant, typewriter-style brochure rendering.
+- 🧠 **AI-Powered Link Filtering**: Intelligently scores and filters subpages (About, Pricing, Careers, Products) using structured JSON schemas.
+- 🛡️ **SSRF-Protected Crawler**: Hardened asynchronous crawling engine preventing internal IP probing, private subnet traversal, and protocol abuse.
+- 🎯 **Audience-Tailored Generation**: Custom synthesis profiles for *Customers & Prospects*, *Investors*, *Job Candidates*, or *General Audience*.
+- 🔒 **Zero-Root Container Architecture**: Multi-container Docker deployment running completely rootless (`UID 1001` & `UID 101`) behind an unprivileged NGINX reverse proxy.
+- 📄 **Interactive Export**: Live Markdown rendering with syntax highlighting, one-click clipboard copy, and print-ready PDF export.
+- 🧪 **Comprehensive Test Suite**: 24 automated unit and integration tests with mocked LLM APIs via `pytest` and `respx`.
 
 ---
 
@@ -12,10 +33,8 @@ This project adheres strictly to the SDD (Spec-Driven Development) methodology:
 
 1. [**Capability Map (`CAPABILITY-MAP.md`)**](CAPABILITY-MAP.md): Phase 0 module boundaries, responsibilities, and build order.
 2. [**Specification (`SPEC.md`)**](SPEC.md): Phase 1 complete specification covering tech stack, interfaces, boundaries, code conventions, and testing strategies.
-3. [**Implementation Plan (`tasks/plan.md`)**](tasks/plan.md): Phase 2 phased technical roadmap and sequence diagrams.
-4. [**Task Checklist (`tasks/todo.md`)**](tasks/todo.md): Phase 3 actionable task breakdown with verification criteria.
-5. [**Architecture Guide (`docs/architecture.md`)**](docs/architecture.md): Deep-dive into architecture, data flow, and differences from the notebook prototype.
-6. [**API Specification (`docs/api.md`)**](docs/api.md): Endpoints, SSE streaming contract, and payload schemas.
+3. [**Architecture Guide (`docs/architecture.md`)**](docs/architecture.md): Deep-dive into architecture, data flow, and differences from the notebook prototype.
+4. [**API Specification (`docs/api.md`)**](docs/api.md): Endpoints, SSE streaming contract, and payload schemas.
 
 ---
 
@@ -178,3 +197,20 @@ Frontend will be running at `http://localhost:5173`.
 # Run backend unit and integration tests
 pytest tests/ -v
 ```
+
+---
+
+## 👤 Author & Connect
+
+**Federico de la Vega**
+- **GitHub**: [@fededlV](https://github.com/fededlV)
+- **LinkedIn**: [Federico de la Vega](https://www.linkedin.com/in/federico-de-la-vega/)
+
+Feedback, stars ⭐, and suggestions are welcome!
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
+
