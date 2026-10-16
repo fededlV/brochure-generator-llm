@@ -13,7 +13,10 @@ from backend.services.prompts import (
 from backend.services.ai_engine import AIEngine
 
 
-def test_settings_api_key_resolution():
+def test_settings_api_key_resolution(monkeypatch):
+    for name in ("GEMINI_API_KEY", "GOOGLE_API_KEY", "API_KEY"):
+        monkeypatch.delenv(name, raising=False)
+
     s1 = Settings(_env_file=None, gemini_api_key="AIzaSyTest123456789")
     assert s1.effective_api_key == "AIzaSyTest123456789"
     assert s1.is_api_key_valid() is True
@@ -162,4 +165,3 @@ async def test_generate_brochure_stream_with_mocked_gemini():
     full_output = "".join(collected)
     assert "# Acme Corp" in full_output
     assert "revolutionary AI solutions" in full_output
-
