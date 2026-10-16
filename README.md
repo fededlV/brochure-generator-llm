@@ -75,10 +75,10 @@ The project includes production-grade container orchestration powered by Docker,
 
 ```mermaid
 flowchart LR
-    Client([Browser / Client]) -- HTTP :80 / HTTPS :443 --> Nginx[NGINX Reverse Proxy\n(Rate Limit, Security Headers, Unbuffered SSE)]
-    subgraph Isolated Docker Network [brochure-network]
-        Nginx -- / --> Frontend[Frontend React SPA\n(Nginx Unprivileged :8080)]
-        Nginx -- /api/ --> Backend[FastAPI Backend\n(Python 3.12 Slim :8000)]
+    Client([Browser / Client]) -- HTTP :80 / HTTPS :443 --> Nginx["NGINX Reverse Proxy<br/>Rate Limit, Security Headers, Unbuffered SSE"]
+    subgraph dockerNetwork ["Isolated Docker Network (brochure-network)"]
+        Nginx -- / --> Frontend["Frontend React SPA<br/>Nginx Unprivileged :8080"]
+        Nginx -- /api/ --> Backend["FastAPI Backend<br/>Python 3.12 Slim :8000"]
     end
     Backend -- Crawl Subpages --> Web[Target Website]
     Backend -- AI Generation --> Gemini[Google Gemini API]
@@ -213,4 +213,3 @@ Feedback, stars ⭐, and suggestions are welcome!
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) - see the LICENSE file for details.
-
