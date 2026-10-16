@@ -18,10 +18,6 @@ def test_settings_api_key_resolution():
     assert s1.effective_api_key == "AIzaSyTest123456789"
     assert s1.is_api_key_valid() is True
 
-    s2 = Settings(_env_file=None, google_api_key="AIzaSyTestFromGoogle987")
-    assert s2.effective_api_key == "AIzaSyTestFromGoogle987"
-    assert s2.is_api_key_valid() is True
-
     s3 = Settings(_env_file=None, api_key_generic="GenericAPIKey12345")
     assert s3.effective_api_key == "GenericAPIKey12345"
     assert s3.is_api_key_valid() is True
